@@ -24,9 +24,21 @@ class Point2D{
 }
 
 
+class EuclideanDistanceCalculator{
+  public static double calculateDistance(Point2D point1, Point2D point2){
+      int XDiff = Math.Abs(point1.GetX() - point2.GetX());
+      int YDiff = Math.Abs(point1.GetY() - point2.GetY());
+      int XDiffSquared = XDiff * XDiff;
+      int YDiffSquared = YDiff * YDiff;
+      return Math.Sqrt(XDiffSquared + YDiffSquared);
+  }
+}
+
+
 class Program {
   public static void Main (string[] args) {
-    var point = new Point2D(10, 5);
-    Console.WriteLine(point);
+    var point1 = new Point2D(10, 5);
+    var point2 = new Point2D(0, 0);
+    Console.WriteLine(EuclideanDistanceCalculator.calculateDistance(point1, point2));
   }
 }

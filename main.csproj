@@ -2,8 +2,9 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <RootNamespace>VoronoiDiagram</RootNamespace>
     <TargetFramework>netcoreapp5.0</TargetFramework>
-		<StartupObject>Program</StartupObject>
+		<StartupObject>VoronoiDiagram.Program</StartupObject>
   </PropertyGroup>
 
 </Project>

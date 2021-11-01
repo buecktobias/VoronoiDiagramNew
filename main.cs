@@ -33,6 +33,14 @@ class VoronoiSite : Point2D {
     this._cellLetter = cellLetter;
   }
 
+  public char getSiteLetter(){
+    return this._siteLetter;
+  }
+
+  public char getCellLetter(){
+    return this._cellLetter;
+  }
+
   public override string ToString(){
     return base.ToString() + " - " + this._siteLetter;
   }
@@ -120,6 +128,49 @@ class PointCreator{
 }
 
 class VoronoiDiagramCreator{
+    private List<VoronoiSite> _voronoiSites;
+    private List<List<Point2D>> _points;
+    private Point2D _size;
+    private NearestVoronoiSiteFinder _nearestVoronoiSiteFinder;
+
+    public VoronoiDiagramCreator(List<VoronoiSite> sites, Point2D rectangleSize, IDistanceCalculator distanceCalculator){
+      this._voronoiSites = sites;
+      this._size = rectangleSize;
+      this._nearestVoronoiSiteFinder = new NearestVoronoiSiteFinder(distanceCalculator);
+      this.generatePoints(rectangleSize);
+    }
+
+    private void generatePoints(Point2D rectangleSize){
+      Rectangle rectangle = new Rectangle(new Point2D(0, 0), rectangleSize);
+      this._points = PointCreator.createAllPointsInsideRectangle(rectangle);
+    }
+
+    private List<List<char>> generateEmptyDiagram(){
+      List<List<char>> diagram = new List<List<char>>();
+      for(int x=0; x <= this._size.GetX(); x++){
+        List<char> column = new List<char>();
+        for(int y=0; y <= this._size.GetY(); y++){
+          column.Add('#');
+        }
+        diagram.Add(column);
+      }
+      return diagram;
+    }
+
+    public List<List<char>> createDiagram(){
+        List<List<char>> diagram = this.generateEmptyDiagram();
+
+        foreach(var column in this._points){
+          foreach(var point in column){
+            VoronoiSite vs = this._nearestVoronoiSiteFinder.findNearestVoronoiSite(point, this._voronoiSites);
+            diagram[point.GetX()][point.GetY()] = vs.getCellLetter();
+          }
+        }
+        foreach(var vs in this._voronoiSites){
+          diagram[vs.GetX()][vs.GetY()] = vs.getSiteLetter();
+        }
+        return diagram;
+    }
 
 }
  
@@ -128,25 +179,27 @@ class VoronoiDiagramCreator{
 class Program {
   public static void Main (string[] args) {
 
-    VoronoiSite vs1 = new VoronoiSite(2, 2, 'A', 'a');
-    VoronoiSite vs2 = new VoronoiSite(2, 8, 'B', 'b');
-    VoronoiSite vs3 = new VoronoiSite(3, 5, 'C', 'c');
+    VoronoiSite vs1 = new VoronoiSite(2, 2, 'A', '#');
+    VoronoiSite vs2 = new VoronoiSite(2, 8, 'B', '0');
+    VoronoiSite vs3 = new VoronoiSite(7, 5, 'C', '_');
+    VoronoiSite vs4 = new VoronoiSite(15, 15, 'D', '*');
+    VoronoiSite vs5 = new VoronoiSite(18, 5, 'E', '/');
+    VoronoiSite vs6 = new VoronoiSite(3, 14, 'F', '=');
     List<VoronoiSite> allVoronoiSites = new List<VoronoiSite>();
     allVoronoiSites.Add(vs1);
     allVoronoiSites.Add(vs2);
     allVoronoiSites.Add(vs3);
-    Console.WriteLine(allVoronoiSites);
-    var point1 = new Point2D(3, 5);
-    NearestVoronoiSiteFinder nearestVoronoiSiteFinder = new NearestVoronoiSiteFinder(new EuclideanDistanceCalculator());
-
-    Console.WriteLine(nearestVoronoiSiteFinder.findNearestVoronoiSite(point1, allVoronoiSites));
-    List<List<Point2D>> points = PointCreator.createAllPointsInsideRectangle(new Rectangle(new Point2D(0,0), new Point2D(3,3)));
-    foreach(var column in points){
-      foreach(var y in column){
-        Console.WriteLine(y);
+    allVoronoiSites.Add(vs4);
+    allVoronoiSites.Add(vs5);
+    allVoronoiSites.Add(vs6);
+    Point2D diagramSize = new Point2D(20, 20);
+    VoronoiDiagramCreator vDC = new VoronoiDiagramCreator(allVoronoiSites, diagramSize, new EuclideanDistanceCalculator());
+    List<List<char>> diagram = vDC.createDiagram();
+    for(int y = diagramSize.GetY(); y >= 0; y--){
+      for(int x = 0; x <= diagramSize.GetX(); x++){
+        Console.Write(" " + diagram[x][y] + " ");
       }
+      Console.WriteLine();
     }
-
-
   }
 }
